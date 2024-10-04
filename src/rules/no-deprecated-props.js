@@ -572,7 +572,7 @@ const replacements = {
     bottom: false,
     dense: { name: 'density', value: 'compact' },
     outlined: 'border',
-    prominent: false,
+    prominent: { name: 'density', value: 'prominent' },
     shaped: false,
     short: false,
     src: 'image',

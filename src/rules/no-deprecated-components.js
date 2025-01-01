@@ -1,6 +1,6 @@
 'use strict'
 
-const { hyphenate, classify } = require('../util/helpers')
+const { hyphenate, classify, isVueTemplate } = require('../util/helpers')
 
 const replacements = {
   VListTile: 'v-list-item',
@@ -55,11 +55,13 @@ module.exports = {
     },
   },
   create (context) {
-    return context.parserServices.defineTemplateBodyVisitor({
+    if (!isVueTemplate(context)) return {}
+
+    return context.sourceCode.parserServices.defineTemplateBodyVisitor({
       VElement (element) {
         const tag = classify(element.rawName)
 
-        const tokens = context.parserServices.getTemplateBodyTokenStore()
+        const tokens = context.sourceCode.parserServices.getTemplateBodyTokenStore()
 
         if (Object.prototype.hasOwnProperty.call(replacements, tag)) {
           const replacement = replacements[tag]

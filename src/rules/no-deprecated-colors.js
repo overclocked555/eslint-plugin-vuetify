@@ -1,5 +1,7 @@
 'use strict'
 
+const { isVueTemplate } = require('../util/helpers')
+
 const cssColors = [
   'red', 'pink', 'purple', 'deep-purple',
   'indigo', 'blue', 'light-blue', 'cyan',
@@ -45,6 +47,8 @@ module.exports = {
   },
 
   create (context) {
+    if (!isVueTemplate(context)) return {}
+
     const themeColors = ['primary', 'secondary', 'accent', 'error', 'warning', 'info', 'success', ...(context.options[0]?.themeColors || [])]
     const themeTextColors = themeColors.map(v => `${v}--text`)
 
@@ -61,7 +65,7 @@ module.exports = {
       return [base, variant]
     }
 
-    return context.parserServices.defineTemplateBodyVisitor({
+    return context.sourceCode.parserServices.defineTemplateBodyVisitor({
       'VAttribute[key.name="color"]' (node) {
         if (!node.value || !node.value.value) return
 

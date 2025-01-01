@@ -1,6 +1,6 @@
 'use strict'
 
-const { hyphenate, classify } = require('../util/helpers')
+const { hyphenate, classify, isVueTemplate } = require('../util/helpers')
 
 const size = {
   maxHeight: false,
@@ -353,6 +353,7 @@ const replacements = {
   },
   VForm: {
     value: 'model-value',
+    lazyValidation: false,
   },
   VHover: {
     value: 'model-value',
@@ -633,7 +634,9 @@ module.exports = {
   },
 
   create (context) {
-    return context.parserServices.defineTemplateBodyVisitor({
+    if (!isVueTemplate(context)) return {}
+
+    return context.sourceCode.parserServices.defineTemplateBodyVisitor({
       VStartTag (tag) {
         const attrGroups = {}
         tag.attributes.forEach(attr => {
@@ -702,7 +705,7 @@ module.exports = {
                 },
               })
             } else if (typeof replace === 'object' && 'name' in replace && 'value' in replace) {
-              const oldValue = attr.directive ? context.getSourceCode().getText(attr.value.expression) : attr.value?.value
+              const oldValue = attr.directive ? context.sourceCode.getText(attr.value.expression) : attr.value?.value
               const value = typeof replace.value === 'function'
                 ? replace.value(oldValue)
                 : replace.value
@@ -722,7 +725,7 @@ module.exports = {
                       }
                       return [fixer.replaceText(propNameNode, replace.name), fixer.replaceText(attr.value, `"${value}"`)]
                     } else {
-                      const expression = context.getSourceCode().getText(attr.value.expression)
+                      const expression = context.sourceCode.getText(attr.value.expression)
                       return [fixer.replaceText(propNameNode, replace.name), fixer.replaceText(attr.value, `"${expression} ? '${value}' : undefined"`)]
                     }
                   } else {

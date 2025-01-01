@@ -1,6 +1,6 @@
 'use strict'
 
-const { hyphenate, classify } = require('../util/helpers')
+const { hyphenate, classify, isVueTemplate } = require('../util/helpers')
 
 const model = {
   input: 'update:modelValue',
@@ -158,7 +158,9 @@ module.exports = {
   },
 
   create (context) {
-    return context.parserServices.defineTemplateBodyVisitor({
+    if (!isVueTemplate(context)) return {}
+
+    return context.sourceCode.parserServices.defineTemplateBodyVisitor({
       VAttribute (attr) {
         if (!(attr.directive && attr.key.name.name === 'on' && attr.key.argument?.type === 'VIdentifier')) return
 
